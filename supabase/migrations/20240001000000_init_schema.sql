@@ -14,7 +14,7 @@ CREATE EXTENSION IF NOT EXISTS "pg_cron";
 -- vehicles
 -- ============================================================
 CREATE TABLE vehicles (
-  id          uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id          uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   make        text NOT NULL,
   model       text NOT NULL,
   variant     text,
@@ -37,7 +37,7 @@ CREATE INDEX idx_vehicles_ktype        ON vehicles (ktype_id);
 -- Brand lookup
 -- ============================================================
 CREATE TABLE brands (
-  id   uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name text NOT NULL UNIQUE,
   slug text NOT NULL UNIQUE
 );
@@ -46,7 +46,7 @@ CREATE TABLE brands (
 -- Category lookup
 -- ============================================================
 CREATE TABLE categories (
-  id        uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id        uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name      text NOT NULL,
   slug      text NOT NULL UNIQUE,
   parent_id uuid REFERENCES categories (id)
@@ -56,7 +56,7 @@ CREATE TABLE categories (
 -- parts_catalog
 -- ============================================================
 CREATE TABLE parts_catalog (
-  id                     uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                     uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   part_number            text NOT NULL,
   part_number_normalized text NOT NULL,
   name                   text NOT NULL,
@@ -76,7 +76,7 @@ CREATE INDEX idx_parts_pn_normalized ON parts_catalog (part_number_normalized);
 -- fitment  (part ↔ vehicle — the core moat)
 -- ============================================================
 CREATE TABLE fitment (
-  id                  uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                  uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   part_id             uuid NOT NULL REFERENCES parts_catalog (id) ON DELETE CASCADE,
   vehicle_id          uuid NOT NULL REFERENCES vehicles (id) ON DELETE CASCADE,
   position            text,              -- 'front-left', 'rear', 'all'
@@ -94,7 +94,7 @@ CREATE INDEX idx_fitment_vehicle ON fitment (vehicle_id);
 -- sellers
 -- ============================================================
 CREATE TABLE sellers (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   name            text NOT NULL UNIQUE,
   seller_type     text NOT NULL CHECK (
                     seller_type IN ('DEALER','DISMANTLER','MARKETPLACE','PRIVATE')
@@ -166,7 +166,7 @@ CREATE INDEX idx_listings_part_number  ON listings (part_number) WHERE part_numb
 -- cross_references  (OEM ↔ OES ↔ IAM equivalencies)
 -- ============================================================
 CREATE TABLE cross_references (
-  id                   uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id                   uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   part_id              uuid NOT NULL REFERENCES parts_catalog (id) ON DELETE CASCADE,
   ref_number           text NOT NULL,
   ref_number_normalized text NOT NULL,
@@ -180,7 +180,7 @@ CREATE INDEX idx_xref_ref_brand ON cross_references (ref_number_normalized, bran
 -- ranking_rules  (editable without redeploy)
 -- ============================================================
 CREATE TABLE ranking_rules (
-  id              uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id              uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   source          text NOT NULL DEFAULT '*',
   checkout_type   text NOT NULL CHECK (checkout_type IN ('direct','affiliate','cpc','organic')),
   weight_checkout real NOT NULL DEFAULT 4.0,
@@ -219,7 +219,7 @@ CREATE INDEX idx_price_history_listing ON price_history (listing_id, recorded_at
 -- scraper_jobs  (agent job queue)
 -- ============================================================
 CREATE TABLE scraper_jobs (
-  id             uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
+  id             uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   seller_id      uuid REFERENCES sellers (id),
   job_type       text NOT NULL CHECK (job_type IN ('FULL_CRAWL','DELTA','PRICE_UPDATE')),
   status         text NOT NULL DEFAULT 'PENDING' CHECK (
