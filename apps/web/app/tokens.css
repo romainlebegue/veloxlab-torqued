@@ -1,0 +1,347 @@
+/* ============================================================
+   TORQUED — Design Token System
+   torqued.veloxlab.co · 2026
+   ============================================================ */
+
+/* ── Google Fonts
+   Import this in <head>:
+   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+   ── */
+
+:root {
+
+  /* Fonts */
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-mono: 'DM Mono', 'Courier New', monospace;
+
+  /* ── Colors ── */
+
+  /* Signature */
+  --coral:          #E8412A;
+  --coral-bg:       #FDECEA;
+  --coral-mid:      #F4A99A;
+
+  /* Badge — Neuf */
+  --blue-oem:       #0C3D6B;
+  --blue-oem-bg:    #E0EAF5;
+  --blue-oes:       #1565A8;
+  --blue-oes-bg:    #DDEEFF;
+
+  /* Badge — Occasion */
+  --green-cert:     #0A6640;
+  --green-cert-bg:  #D6F5E8;
+  --grey-used:      #4A5568;
+  --grey-used-bg:   #ECEEF1;
+
+  /* Text */
+  --ink:            #0F1923;
+  --ink-mid:        #3D4A55;
+  --ink-light:      #6B7280;
+
+  /* Surfaces */
+  --bg:             #FFFFFF;
+  --bg-warm:        #F7F7F5;
+  --bg-warm2:       #F0EFEC;
+
+  /* Borders */
+  --border:         rgba(15, 25, 35, 0.08);
+  --border-mid:     rgba(15, 25, 35, 0.14);
+  --border-strong:  rgba(15, 25, 35, 0.25);
+
+  /* Semantic */
+  --success:        #1D9E75;
+  --success-bg:     #EBFBEE;
+  --warning:        #BA7517;
+  --warning-bg:     #FFF3CD;
+  --danger:         #C92A2A;
+  --danger-bg:      #FFF5F5;
+
+  /* ── Spacing (base 4px) ── */
+  --space-1:  4px;
+  --space-2:  8px;
+  --space-3:  12px;
+  --space-4:  16px;
+  --space-5:  20px;
+  --space-6:  24px;
+  --space-8:  32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* ── Border Radius ── */
+  --radius-sm:   6px;
+  --radius-md:   8px;
+  --radius-lg:   12px;
+  --radius-xl:   16px;
+  --radius-full: 999px;
+
+  /* ── Shadows ── */
+  --shadow-sm: 0 1px 3px rgba(15, 25, 35, 0.06);
+  --shadow-md: 0 4px 12px rgba(15, 25, 35, 0.08);
+  --shadow-lg: 0 8px 24px rgba(15, 25, 35, 0.10);
+}
+
+/* ── Dark Mode ── */
+@media (prefers-color-scheme: dark) {
+  :root {
+    --ink:          #F1F5F9;
+    --ink-mid:      #94A3B8;
+    --ink-light:    #64748B;
+    --bg:           #0F1923;
+    --bg-warm:      #131E2A;
+    --bg-warm2:     #1A2736;
+    --border:       rgba(255, 255, 255, 0.06);
+    --border-mid:   rgba(255, 255, 255, 0.12);
+    --border-strong:rgba(255, 255, 255, 0.22);
+  }
+}
+
+
+/* ============================================================
+   BASE STYLES
+   ============================================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-sans);
+  background: var(--bg-warm);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+input, select, button, textarea {
+  font-family: var(--font-sans);
+}
+
+
+/* ============================================================
+   BADGE SYSTEM
+   ============================================================ */
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 10px;
+  border-radius: var(--radius-full);
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  line-height: 1.6;
+}
+
+.badge::before {
+  content: '';
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+/* Neuf — types */
+.badge-oem  { background: var(--blue-oem-bg);   color: var(--blue-oem);   }
+.badge-oem::before  { background: var(--blue-oem); }
+
+.badge-oes  { background: var(--blue-oes-bg);   color: var(--blue-oes);   }
+.badge-oes::before  { background: var(--blue-oes); }
+
+.badge-iam  { background: var(--coral-bg);      color: var(--coral);      }
+.badge-iam::before  { background: var(--coral); }
+
+/* Occasion — types */
+.badge-certified { background: var(--green-cert-bg); color: var(--green-cert); }
+.badge-certified::before { background: var(--green-cert); }
+
+.badge-used { background: var(--grey-used-bg);  color: var(--grey-used);  }
+.badge-used::before { background: var(--grey-used); }
+
+
+/* ============================================================
+   BUTTONS
+   ============================================================ */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  padding: 10px 20px;
+  border-radius: var(--radius-md);
+  font-family: var(--font-sans);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: -0.01em;
+  cursor: pointer;
+  border: none;
+  text-decoration: none;
+  transition: opacity 0.15s, background 0.15s;
+  white-space: nowrap;
+}
+
+.btn-primary {
+  background: var(--coral);
+  color: #ffffff;
+}
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-secondary {
+  background: var(--bg);
+  color: var(--ink);
+  border: 0.5px solid var(--border-mid);
+}
+.btn-secondary:hover { background: var(--bg-warm); }
+
+.btn-ghost {
+  background: transparent;
+  color: var(--coral);
+  border: 0.5px solid var(--coral);
+}
+.btn-ghost:hover { background: var(--coral-bg); }
+
+.btn-sm {
+  padding: 6px 14px;
+  font-size: 12px;
+}
+
+.btn-lg {
+  padding: 13px 28px;
+  font-size: 15px;
+}
+
+
+/* ============================================================
+   CARDS
+   ============================================================ */
+
+.card {
+  background: var(--bg);
+  border: 0.5px solid var(--border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  transition: border-color 0.15s;
+}
+
+.card:hover {
+  border-color: var(--coral);
+}
+
+.card-body {
+  padding: var(--space-4);
+}
+
+
+/* ============================================================
+   INPUTS
+   ============================================================ */
+
+.input {
+  background: var(--bg-warm);
+  border: 0.5px solid var(--border-mid);
+  border-radius: var(--radius-md);
+  padding: 10px 14px;
+  font-size: 13px;
+  color: var(--ink);
+  outline: none;
+  width: 100%;
+  transition: border-color 0.15s;
+}
+
+.input:focus {
+  border-color: var(--coral);
+}
+
+.input::placeholder {
+  color: var(--ink-light);
+}
+
+.input-mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.06em;
+}
+
+
+/* ============================================================
+   TYPOGRAPHY UTILITIES
+   ============================================================ */
+
+.text-display {
+  font-size: 48px;
+  font-weight: 600;
+  letter-spacing: -0.04em;
+  line-height: 1.05;
+}
+
+.text-heading {
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.text-subheading {
+  font-size: 18px;
+  font-weight: 500;
+  letter-spacing: -0.015em;
+  line-height: 1.3;
+}
+
+.text-body {
+  font-size: 14px;
+  font-weight: 400;
+  line-height: 1.6;
+  color: var(--ink-mid);
+}
+
+.text-label {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  font-weight: 500;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-light);
+}
+
+.text-price {
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: var(--ink);
+}
+
+.text-ref {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--coral);
+  background: var(--coral-bg);
+  border-radius: var(--radius-sm);
+  padding: 2px 8px;
+  display: inline-block;
+}
+
+.text-coral { color: var(--coral); }
+.text-muted  { color: var(--ink-light); }
+.text-success { color: var(--success); }
+
+
+/* ============================================================
+   LAYOUT UTILITIES
+   ============================================================ */
+
+.page-container {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: 0 var(--space-5) var(--space-16);
+}
+
+.divider {
+  height: 0.5px;
+  background: var(--border);
+  margin: var(--space-6) 0;
+}
