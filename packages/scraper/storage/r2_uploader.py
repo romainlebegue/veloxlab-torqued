@@ -21,16 +21,24 @@ MAX_HEIGHT = 600
 
 class R2Uploader:
     def __init__(self) -> None:
+        endpoint = os.environ.get("R2_ENDPOINT", "")
+        if not endpoint:
+            logger.info("r2_not_configured", msg="R2 env vars missing — photo upload disabled")
+            self._enabled = False
+            return
+        self._enabled = True
         self._bucket = os.environ["R2_BUCKET"]
         self._public_url = os.environ["R2_PUBLIC_URL"].rstrip("/")
         self._s3 = boto3.client(
             "s3",
-            endpoint_url=os.environ["R2_ENDPOINT"],
+            endpoint_url=endpoint,
             aws_access_key_id=os.environ["R2_ACCESS_KEY"],
             aws_secret_access_key=os.environ["R2_SECRET_KEY"],
         )
 
     def upload_photos(self, listing_id: str, source_urls: list[str]) -> list[str]:
+        if not self._enabled:
+            return []
         """
         Download up to MAX_PHOTOS images, resize, upload to R2.
         Returns list of public R2 URLs.

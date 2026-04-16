@@ -63,6 +63,7 @@ def main() -> None:
     if not sources:
         parser.error("Provide --source, --all, or set SCRAPER_SOURCES env var")
 
+    logger.info("scraper_starting", sources=sources, limit=args.limit, dry_run=args.dry_run)
     for source in sources:
         asyncio.run(run_scraper(source, args.limit, args.dry_run))
 
