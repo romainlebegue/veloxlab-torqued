@@ -12,7 +12,14 @@ from typing import AsyncIterator
 
 import structlog
 from playwright.async_api import async_playwright, Browser, BrowserContext, Page
-from playwright_stealth import Stealth
+try:
+    from playwright_stealth import Stealth
+    _STEALTH_AVAILABLE = True
+except (ImportError, ModuleNotFoundError):
+    _STEALTH_AVAILABLE = False
+    class Stealth:  # noqa: E302
+        def __init__(self, *args, **kwargs): pass
+        async def __call__(self, page): pass
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from processors.normalize import normalize_part_number, to_eur
