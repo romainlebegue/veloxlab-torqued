@@ -13,8 +13,9 @@ RUN apt-get update && apt-get install -y \
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-# Install Playwright browser (Chromium only)
+# Install Playwright browser (Chromium only) + patchright patched Chromium for CF bypass
 RUN playwright install chromium --with-deps
+RUN patchright install chromium
 
 COPY . .
 

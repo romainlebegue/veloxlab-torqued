@@ -45,6 +45,27 @@ SEED_QUERIES = [
 class MisterAutoScraper(BaseScraper):
     source = "mister_auto"
 
+    async def run(self) -> list[dict]:
+        """Override to use patchright (Cloudflare JS challenge bypass)."""
+        try:
+            from patchright.async_api import async_playwright as patchright_playwright
+        except ImportError:
+            logger.warning("patchright_not_available", msg="falling back to standard playwright — CF may block")
+            return await super().run()
+
+        listings: list[dict] = []
+        async with patchright_playwright() as pw:
+            browser = await pw.chromium.launch(headless=True)
+            try:
+                async for listing in self._scrape(browser):
+                    listings.append(listing)
+                    if len(listings) >= self.limit:
+                        break
+            finally:
+                await browser.close()
+        logger.info("scrape_complete", source=self.source, count=len(listings))
+        return listings
+
     async def _scrape(self, browser: Browser) -> AsyncIterator[dict]:
         product_urls = await self._fetch_product_urls()
 

@@ -15,7 +15,6 @@ import re
 from typing import AsyncIterator
 from xml.etree import ElementTree
 
-import httpx
 import structlog
 from playwright.async_api import Browser
 
@@ -34,7 +33,7 @@ class OscaroScraper(BaseScraper):
     source = "oscaro"
 
     async def _scrape(self, browser: Browser) -> AsyncIterator[dict]:
-        product_urls = await self._fetch_product_urls()
+        product_urls = await self._fetch_product_urls(browser)
         logger.info("oscaro_urls_found", count=len(product_urls))
 
         context = await self._new_context(browser)
@@ -55,33 +54,30 @@ class OscaroScraper(BaseScraper):
 
         await context.close()
 
-    async def _fetch_product_urls(self) -> list[str]:
-        """Download Oscaro sitemap and extract product page URLs."""
-        headers = {
-            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
-            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
-            "Accept-Language": "fr-FR,fr;q=0.9",
-        }
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True, headers=headers) as client:
-            try:
-                resp = await client.get(OSCARO_SITEMAP)
-                resp.raise_for_status()
-            except Exception as exc:
-                logger.error("oscaro_sitemap_failed", error=str(exc))
+    async def _fetch_product_urls(self, browser: Browser) -> list[str]:
+        """Fetch Oscaro sitemap via Playwright browser (bypasses httpx 403 on datacenter IPs)."""
+        context = await self._new_context(browser)
+        page = await context.new_page()
+        urls: list[str] = []
+        try:
+            resp = await page.goto(OSCARO_SITEMAP, wait_until="domcontentloaded", timeout=15_000)
+            if resp is None or not resp.ok:
+                logger.error("oscaro_sitemap_failed", error=f"HTTP {resp.status if resp else 'none'}")
                 return []
-
-            root = ElementTree.fromstring(resp.content)
+            body = await resp.body()
+            root = ElementTree.fromstring(body)
             sub_sitemaps = [
                 loc.text for loc in root.findall("sm:sitemap/sm:loc", NS)
                 if loc.text and "product" in (loc.text or "")
             ]
-
-            urls: list[str] = []
             for sm_url in sub_sitemaps[:3]:  # cap at 3 sub-sitemaps for POC
                 try:
-                    r = await client.get(sm_url)
-                    r.raise_for_status()
-                    sm_root = ElementTree.fromstring(r.content)
+                    r = await page.goto(sm_url, wait_until="domcontentloaded", timeout=15_000)
+                    if r is None or not r.ok:
+                        logger.warning("oscaro_sub_sitemap_failed", url=sm_url, status=r.status if r else None)
+                        continue
+                    body2 = await r.body()
+                    sm_root = ElementTree.fromstring(body2)
                     batch = [
                         loc.text for loc in sm_root.findall("sm:url/sm:loc", NS)
                         if loc.text and "/fr/" in (loc.text or "")
@@ -89,8 +85,11 @@ class OscaroScraper(BaseScraper):
                     urls.extend(batch)
                 except Exception as exc:
                     logger.warning("oscaro_sub_sitemap_failed", url=sm_url, error=str(exc))
-
-            return urls
+        except Exception as exc:
+            logger.error("oscaro_sitemap_failed", error=str(exc))
+        finally:
+            await context.close()
+        return urls
 
     async def _extract_json_ld(self, page, url: str) -> dict | None:
         """Parse Product JSON-LD from a product page."""
