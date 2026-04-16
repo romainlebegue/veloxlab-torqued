@@ -20,7 +20,7 @@ def _listing_id(source: str, external_id: str) -> str:
 
 class SupabaseUploader:
     def __init__(self) -> None:
-        url = os.environ["NEXT_PUBLIC_SUPABASE_URL"]
+        url = os.environ["SUPABASE_URL"]
         key = os.environ["SUPABASE_SERVICE_KEY"]
         self._client: Client = create_client(url, key)
 
