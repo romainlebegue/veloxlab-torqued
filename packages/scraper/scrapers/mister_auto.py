@@ -71,7 +71,12 @@ class MisterAutoScraper(BaseScraper):
         await context.close()
 
     async def _fetch_product_urls(self) -> list[str]:
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "fr-FR,fr;q=0.9",
+        }
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True, headers=headers) as client:
             try:
                 resp = await client.get(MISTER_AUTO_SITEMAP)
                 resp.raise_for_status()
@@ -123,7 +128,14 @@ class MisterAutoScraper(BaseScraper):
                         logger.warning("mister_auto_item_failed", error=str(exc))
                         self._circuit_breaker.record(False)
             except Exception as exc:
-                logger.warning("mister_auto_search_failed", query=query, error=str(exc))
+                html = await page.content()
+                logger.warning(
+                    "mister_auto_search_failed",
+                    query=query,
+                    error=str(exc),
+                    page_title=await page.title(),
+                    html_preview=html[1000:2000],  # middle section, skip <head>
+                )
 
         await context.close()
 

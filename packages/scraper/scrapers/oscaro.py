@@ -57,7 +57,12 @@ class OscaroScraper(BaseScraper):
 
     async def _fetch_product_urls(self) -> list[str]:
         """Download Oscaro sitemap and extract product page URLs."""
-        async with httpx.AsyncClient(timeout=15, follow_redirects=True) as client:
+        headers = {
+            "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36",
+            "Accept": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+            "Accept-Language": "fr-FR,fr;q=0.9",
+        }
+        async with httpx.AsyncClient(timeout=15, follow_redirects=True, headers=headers) as client:
             try:
                 resp = await client.get(OSCARO_SITEMAP)
                 resp.raise_for_status()
