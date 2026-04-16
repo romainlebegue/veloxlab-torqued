@@ -53,9 +53,15 @@ def main() -> None:
     parser.add_argument("--dry-run", action="store_true")
     args = parser.parse_args()
 
-    sources = list(SCRAPERS.keys()) if args.all else [args.source]
-    if not sources or sources == [None]:
-        parser.error("Provide --source or --all")
+    if args.all:
+        sources = list(SCRAPERS.keys())
+    elif args.source:
+        sources = [args.source]
+    else:
+        env_sources = os.environ.get("SCRAPER_SOURCES", "")
+        sources = [s.strip() for s in env_sources.split(",") if s.strip()]
+    if not sources:
+        parser.error("Provide --source, --all, or set SCRAPER_SOURCES env var")
 
     for source in sources:
         asyncio.run(run_scraper(source, args.limit, args.dry_run))
