@@ -1,0 +1,40 @@
+# Environment variables — NEVER commit
+.env
+.env.local
+.env.*.local
+config/.env
+
+# Dependencies
+node_modules/
+.pnp
+.pnp.js
+
+# Build outputs
+.next/
+out/
+dist/
+build/
+
+# Supabase
+supabase/.branches/
+supabase/.temp/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+.eggs/
+.venv/
+venv/
+env/
+
+# Playwright
+playwright-report/
+test-results/
+
+# Misc
+.DS_Store
+*.log
+.turbo/
