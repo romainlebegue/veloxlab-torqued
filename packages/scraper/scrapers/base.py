@@ -20,6 +20,7 @@ except (ImportError, ModuleNotFoundError):
     class Stealth:  # noqa: E302
         def __init__(self, *args, **kwargs): pass
         async def __call__(self, page): pass
+        async def apply_stealth_async(self, context): pass
 from tenacity import retry, stop_after_attempt, wait_exponential
 
 from processors.normalize import normalize_part_number, to_eur
