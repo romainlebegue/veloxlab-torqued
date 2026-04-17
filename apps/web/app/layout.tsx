@@ -4,7 +4,6 @@ import "./globals.css";
 
 const dmSans = DM_Sans({
   subsets: ["latin"],
-  axes: ["opsz"],
   weight: ["300", "400", "500", "600"],
   variable: "--font-sans",
 });
