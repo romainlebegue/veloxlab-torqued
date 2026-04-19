@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { notFound } from "next/navigation";
+import Link from "next/link";
+import { Logo } from "@/components/ui/logo";
 import { ProductJsonLd } from "@/components/part/product-json-ld";
-import { PartCard } from "@/components/part/part-card";
 import { SortTabs } from "@/components/search/sort-tabs";
 import { VehicleSearchBar } from "@/components/search/vehicle-search-bar";
+import { ResultsClient } from "@/components/search/results-client";
 import { searchByFitment } from "@/lib/search";
 import { MOCK_GROUPS } from "@/lib/mock-data";
 
@@ -15,7 +17,7 @@ interface Params {
   category: string;
 }
 
-export const revalidate = 14400; // ISR: 4h
+export const revalidate = 14400;
 
 export async function generateMetadata({ params }: { params: Params }): Promise<Metadata> {
   const { make, model, year, category } = params;
@@ -34,14 +36,14 @@ export async function generateMetadata({ params }: { params: Params }): Promise<
 }
 
 const PART_FAMILIES = [
-  { slug: "disques-de-frein",    label: "Disques de frein" },
-  { slug: "plaquettes-de-frein", label: "Plaquettes" },
-  { slug: "amortisseurs",        label: "Amortisseurs" },
-  { slug: "filtres",             label: "Filtres" },
-  { slug: "bougies",             label: "Bougies" },
+  { slug: "disques-de-frein",      label: "Disques de frein" },
+  { slug: "plaquettes-de-frein",   label: "Plaquettes" },
+  { slug: "amortisseurs",          label: "Amortisseurs" },
+  { slug: "filtres",               label: "Filtres" },
+  { slug: "bougies",               label: "Bougies" },
   { slug: "courroie-distribution", label: "Courroie distrib." },
-  { slug: "batterie",            label: "Batterie" },
-  { slug: "embrayage",           label: "Embrayage" },
+  { slug: "batterie",              label: "Batterie" },
+  { slug: "embrayage",             label: "Embrayage" },
 ];
 
 export default async function CategoryPage({
@@ -53,7 +55,6 @@ export default async function CategoryPage({
 }) {
   const { make, model, year, category } = params;
 
-  // Use real API if Supabase is configured, otherwise fall back to mock data
   const useMock = !process.env.NEXT_PUBLIC_SUPABASE_URL;
   let groups = useMock
     ? MOCK_GROUPS
@@ -67,15 +68,15 @@ export default async function CategoryPage({
 
   if (!groups.length) notFound();
 
-  const makeLabel     = make.replace(/-/g, " ");
-  const modelLabel    = model.replace(/-/g, " ");
+  const makeLabel     = make.charAt(0).toUpperCase() + make.slice(1).replace(/-/g, " ");
+  const modelLabel    = model.replace(/-/g, " ").toUpperCase();
   const categoryLabel = category.replace(/-/g, " ");
   const canonicalUrl  = `/pieces/${make}/${model}/${year}/${category}`;
   const topGroup      = groups[0];
   const allOffers     = groups.flatMap((g) => g.offers);
 
   return (
-    <>
+    <div style={{ minHeight: "100vh", background: "var(--bg-warm)" }}>
       <ProductJsonLd
         name={`${categoryLabel} ${makeLabel} ${modelLabel} ${year}`}
         brandName={topGroup.brand_name}
@@ -87,85 +88,85 @@ export default async function CategoryPage({
       />
 
       {/* Header */}
-      <header className="border-b border-gray-100 bg-white sticky top-0 z-10">
-        <div className="mx-auto max-w-7xl px-4 h-14 flex items-center gap-4">
-          <a href="/" className="text-lg font-bold text-blue-700 tracking-tight shrink-0">
-            Torqued
-          </a>
-          <div className="flex-1 hidden md:block">
-            <VehicleSearchBar
-              defaultValues={{ make, model, year, category }}
-            />
+      <header style={{ position: "sticky", top: 0, zIndex: 20, background: "var(--bg)", borderBottom: "0.5px solid var(--border)" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 24px", height: 56, display: "flex", alignItems: "center", gap: 16 }}>
+          <Link href="/" style={{ textDecoration: "none", flexShrink: 0 }}>
+            <Logo size={24} />
+          </Link>
+          <div style={{ flex: 1, maxWidth: 560 }}>
+            <VehicleSearchBar defaultValues={{ make, model, year, category }} />
           </div>
+          <div style={{ flex: 1 }} />
+          <nav style={{ display: "flex", gap: 18 }}>
+            <a href="/marques/volkswagen" style={{ fontSize: 13, color: "var(--ink-mid)", textDecoration: "none" }}>Marques</a>
+            <a href="/categories/disques-de-frein" style={{ fontSize: 13, color: "var(--ink-mid)", textDecoration: "none" }}>Catégories</a>
+            <a href="/pro/nouveau-devis" style={{ fontSize: 13, color: "var(--ink-mid)", textDecoration: "none", display: "inline-flex", alignItems: "center", gap: 6 }}>
+              Pro
+              <span style={{ fontFamily: "var(--font-mono)", background: "var(--ink)", color: "#fff", padding: "2px 6px", borderRadius: 4, fontSize: 9 }}>B2B</span>
+            </a>
+          </nav>
         </div>
       </header>
 
-      <div className="mx-auto max-w-7xl px-4 py-6 flex gap-6">
-        {/* Left sidebar — part families */}
-        <aside className="w-52 shrink-0 hidden lg:block">
-          <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">
-            Catégories
-          </p>
-          <nav className="flex flex-col gap-0.5">
+      {/* Vehicle context bar */}
+      <div style={{ background: "var(--bg)", borderBottom: "0.5px solid var(--border)" }}>
+        <div style={{ maxWidth: 1240, margin: "0 auto", padding: "0 24px", height: 40, display: "flex", alignItems: "center", gap: 8 }}>
+          <svg width={14} height={14} viewBox="0 0 24 24" fill="none" stroke="var(--ink-mid)" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round">
+            <path d="M3 13l2-6h14l2 6v5h-3M3 13v5h3M3 13h18M6 18a2 2 0 100-4 2 2 0 000 4zM18 18a2 2 0 100-4 2 2 0 000 4z" />
+          </svg>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--ink-mid)", letterSpacing: "0.04em" }}>
+            {makeLabel} {modelLabel} {year}
+          </span>
+          <span style={{ color: "var(--border-mid)", fontSize: 12 }}>›</span>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--ink)", letterSpacing: "0.04em", textTransform: "capitalize" }}>
+            {categoryLabel}
+          </span>
+          <div style={{ flex: 1 }} />
+          {/* Category nav pills */}
+          <div style={{ display: "flex", gap: 6, overflow: "hidden" }}>
             {PART_FAMILIES.map(({ slug, label }) => (
-              <a
+              <Link
                 key={slug}
                 href={`/pieces/${make}/${model}/${year}/${slug}`}
-                className={`px-3 py-2 rounded-lg text-sm transition-colors
-                  ${slug === category
-                    ? "bg-blue-50 text-blue-700 font-semibold"
-                    : "text-gray-600 hover:bg-gray-100"
-                  }`}
+                style={{
+                  fontFamily: "var(--font-mono)", fontSize: 10, padding: "3px 10px",
+                  borderRadius: 999, textDecoration: "none", whiteSpace: "nowrap",
+                  background: slug === category ? "var(--ink)" : "transparent",
+                  color: slug === category ? "#fff" : "var(--ink-light)",
+                  border: slug === category ? "none" : "0.5px solid var(--border-mid)",
+                }}
               >
                 {label}
-              </a>
-            ))}
-          </nav>
-        </aside>
-
-        {/* Main content */}
-        <main className="flex-1 min-w-0">
-          {/* Breadcrumb */}
-          <nav className="text-xs text-gray-400 mb-4 flex items-center gap-1.5 flex-wrap capitalize">
-            <a href="/" className="hover:text-gray-600">Accueil</a>
-            <span>/</span>
-            <a href={`/marques/${make}`} className="hover:text-gray-600">{makeLabel}</a>
-            <span>/</span>
-            <a href={`/pieces/${make}/${model}/${year}`} className="hover:text-gray-600">
-              {modelLabel} {year}
-            </a>
-            <span>/</span>
-            <span className="text-gray-600">{categoryLabel}</span>
-          </nav>
-
-          <h1 className="text-xl font-bold text-gray-900 mb-1 capitalize">
-            {categoryLabel} — {makeLabel} {modelLabel} {year}
-          </h1>
-          <p className="text-sm text-gray-500 mb-4">
-            {groups.length} référence{groups.length > 1 ? "s" : ""} · {allOffers.length} offre{allOffers.length > 1 ? "s" : ""} comparées
-          </p>
-
-          {/* Sort tabs */}
-          <div className="mb-4">
-            <Suspense>
-              <SortTabs />
-            </Suspense>
-          </div>
-
-          {/* Part cards */}
-          <div className="space-y-3">
-            {groups.map((group) => (
-              <PartCard key={group.part_number_normalized} group={group} />
+              </Link>
             ))}
           </div>
-
-          {useMock && (
-            <p className="mt-6 text-center text-xs text-amber-600 bg-amber-50 border border-amber-100 rounded-lg py-2 px-4">
-              Mode démo — données mockées. Connectez Supabase pour les vraies données.
-            </p>
-          )}
-        </main>
+        </div>
       </div>
-    </>
+
+      <div style={{ maxWidth: 1240, margin: "0 auto", padding: "20px 24px 80px" }}>
+        {/* Sort bar */}
+        <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 16 }}>
+          <span style={{ fontFamily: "var(--font-mono)", fontSize: 11, color: "var(--ink-light)" }}>
+            {groups.length} référence{groups.length > 1 ? "s" : ""} · {allOffers.length} offres
+          </span>
+          <Suspense>
+            <SortTabs />
+          </Suspense>
+        </div>
+
+        {/* Filter + results grid */}
+        <ResultsClient groups={groups} />
+
+        {useMock && (
+          <p style={{
+            marginTop: 24, textAlign: "center", fontSize: 12, color: "var(--coral)",
+            background: "var(--coral-bg)", border: "0.5px solid rgba(232,65,42,0.2)",
+            borderRadius: 8, padding: "8px 16px",
+          }}>
+            Mode démo — données mockées. Connectez Supabase pour les vraies données.
+          </p>
+        )}
+      </div>
+    </div>
   );
 }

@@ -29,18 +29,20 @@ export function SortTabs() {
   }
 
   return (
-    <div className="flex gap-1 overflow-x-auto pb-1 scrollbar-none">
+    <div style={{ display: "flex", gap: 6, overflowX: "auto" }}>
       {TABS.map(({ value, label, icon }) => (
         <button
           key={value}
           onClick={() => handleSelect(value)}
-          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-medium whitespace-nowrap transition-colors
-            ${current === value
-              ? "bg-blue-600 text-white shadow-sm"
-              : "bg-gray-100 text-gray-600 hover:bg-gray-200"
-            }`}
+          style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "7px 14px", borderRadius: 999, fontSize: 12, fontWeight: 500,
+            whiteSpace: "nowrap", border: "none", cursor: "pointer", transition: "background 0.15s",
+            background: current === value ? "var(--ink)" : "var(--bg-warm2)",
+            color: current === value ? "#fff" : "var(--ink-mid)",
+          }}
         >
-          <span className="text-base leading-none">{icon}</span>
+          <span style={{ fontSize: 13, lineHeight: 1 }}>{icon}</span>
           {label}
         </button>
       ))}
