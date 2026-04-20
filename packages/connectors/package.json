@@ -1,9 +1,13 @@
 {
-  "name": "@torqued/shared",
+  "name": "@torqued/connectors",
   "version": "0.0.1",
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
+  "dependencies": {
+    "@torqued/db": "workspace:*",
+    "@torqued/shared": "workspace:*"
+  },
   "devDependencies": {
     "typescript": "^5.4.5"
   }

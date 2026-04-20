@@ -1,13 +1,19 @@
 {
-  "name": "@partfinder/db",
+  "name": "@torqued/db",
   "version": "0.0.1",
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
+  "scripts": {
+    "seed": "tsx src/seed/index.ts",
+    "typecheck": "tsc --noEmit"
+  },
   "dependencies": {
     "@supabase/supabase-js": "^2.43.0"
   },
   "devDependencies": {
+    "dotenv": "^16.4.7",
+    "tsx": "^4.19.2",
     "typescript": "^5.4.5"
   }
 }

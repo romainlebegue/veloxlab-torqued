@@ -1,6 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  transpilePackages: ["@partfinder/db", "@partfinder/shared"],
+  transpilePackages: ["@torqued/db", "@torqued/shared"],
 };
 
 export default nextConfig;

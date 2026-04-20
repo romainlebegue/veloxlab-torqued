@@ -1,9 +1,12 @@
 {
-  "name": "@torqued/shared",
+  "name": "@torqued/ai",
   "version": "0.0.1",
   "private": true,
   "main": "./index.ts",
   "types": "./index.ts",
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.68.0"
+  },
   "devDependencies": {
     "typescript": "^5.4.5"
   }

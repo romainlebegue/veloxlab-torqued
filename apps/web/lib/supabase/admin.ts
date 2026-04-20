@@ -1,5 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
-import type { Database } from "@partfinder/db";
+import type { Database } from "@torqued/db";
 
 /**
  * Service-role client — ONLY for server-side API routes and Edge Functions.
