@@ -13,6 +13,22 @@ CREATE EXTENSION IF NOT EXISTS "uuid-ossp";
 CREATE EXTENSION IF NOT EXISTS "pg_trgm";
 
 -- ============================================================
+-- Clean any partfinder POC artifacts left in the remote database.
+-- Safe to keep in later runs — DROP ... IF EXISTS is a no-op once gone.
+-- ============================================================
+DROP TABLE IF EXISTS public.price_history    CASCADE;
+DROP TABLE IF EXISTS public.scraper_jobs     CASCADE;
+DROP TABLE IF EXISTS public.ranking_rules    CASCADE;
+DROP TABLE IF EXISTS public.cross_references CASCADE;
+DROP TABLE IF EXISTS public.listings         CASCADE;
+DROP TABLE IF EXISTS public.fitment          CASCADE;
+DROP TABLE IF EXISTS public.parts_catalog    CASCADE;
+DROP TABLE IF EXISTS public.sellers          CASCADE;
+DROP TABLE IF EXISTS public.categories       CASCADE;
+DROP TABLE IF EXISTS public.brands           CASCADE;
+DROP TABLE IF EXISTS public.vehicles         CASCADE;
+
+-- ============================================================
 -- ENUMs
 -- ============================================================
 

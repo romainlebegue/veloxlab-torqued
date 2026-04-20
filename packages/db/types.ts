@@ -1,361 +1,879 @@
-/**
- * Torqued Supabase types — hand-crafted to match the migration at:
- *   supabase/migrations/20260420000000_torqued_schema.sql
- *
- * Once the Supabase project is live, regenerate with:
- *   supabase gen types typescript --local > packages/db/types.ts
- *
- * Keep this file and the migration in sync until then.
- */
-
 export type Json =
   | string
   | number
   | boolean
   | null
   | { [key: string]: Json | undefined }
-  | Json[];
-
-// ============================================================
-// Enums
-// ============================================================
-
-export type VehicleType =
-  | "car"
-  | "light_commercial"
-  | "motorcycle"
-  | "truck"
-  | "boat"
-  | "agricultural"
-  | "other";
-
-export type PartCondition =
-  | "new_oe"
-  | "new_oes"
-  | "new_iam"
-  | "reman"
-  | "rec_traced"
-  | "used_untraced";
-
-export type FitmentSource =
-  | "tecdoc_direct"
-  | "ebay_epid"
-  | "oe_cross_reference"
-  | "ai_photo_inference"
-  | "human_validated"
-  | "seller_declared"
-  | "community_reported";
-
-export type GovernanceLevel = "L1_auto" | "L2_ai" | "L3_human" | "L4_community";
-
-export type SellerTier = "A" | "B" | "C" | "D" | "unranked";
-export type SellerStatus = "pending" | "active" | "suspended" | "archived";
-
-export type ListingStatus =
-  | "draft"
-  | "pending_review"
-  | "active"
-  | "paused"
-  | "archived";
-
-export type IngestionSource =
-  | "ebay_connector"
-  | "linnworks"
-  | "native_import"
-  | "external_affiliate_feed"
-  | "dms_connector";
-
-export type CheckoutPath = "affiliate" | "mor";
-
-// ============================================================
-// Row types
-// ============================================================
-
-export interface CategoryRow {
-  id: string;
-  parent_id: string | null;
-  slug: string;
-  name: string;
-  name_i18n: Json;
-  depth: number;
-  path: string[];
-  created_at: string;
-}
-
-export interface VehicleRow {
-  id: string;
-  vehicle_type: VehicleType;
-  make: string;
-  model: string;
-  variant: string | null;
-  engine_code: string | null;
-  engine_cc: number | null;
-  engine_kw: number | null;
-  engine_hp: number | null;
-  fuel_type: string | null;
-  body_type: string | null;
-  year_from: number | null;
-  year_to: number | null;
-  ktype_nr: number | null;
-  manufacturer_code: string | null;
-  slug: string;
-  display_name: string | null;
-  primary_markets: string[];
-  data_source: string | null;
-  confidence: number;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface PartRow {
-  id: string;
-  oe_numbers: string[];
-  iam_numbers: string[];
-  category_id: string | null;
-  subcategory: string | null;
-  display_name: string;
-  display_name_i18n: Json;
-  technical_attributes: Json;
-  primary_image_url: string | null;
-  slug: string;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface SellerRow {
-  id: string;
-  user_id: string | null;
-  display_name: string;
-  legal_name: string | null;
-  country_code: string;
-  vat_number: string | null;
-  tier: SellerTier;
-  fitment_accuracy_rate: number | null;
-  return_rate: number | null;
-  response_time_hours: number | null;
-  transaction_count: number;
-  mor_eligible: boolean;
-  mor_activated_at: string | null;
-  status: SellerStatus;
-  onboarded_at: string | null;
-  ebay_connected: boolean;
-  ebay_user_id: string | null;
-  ebay_connection_meta: Json | null;
-  linnworks_connected: boolean;
-  is_demo: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ListingMedia {
-  url: string;
-  alt?: string;
-  order?: number;
-}
-
-export interface ListingRow {
-  id: string;
-  seller_id: string;
-  part_id: string | null;
-  ingestion_source: IngestionSource;
-  source_external_id: string | null;
-  source_url: string | null;
-  condition: PartCondition;
-  price_amount: number;
-  price_currency: string;
-  shipping_fee: number | null;
-  free_shipping_threshold: number | null;
-  delivery_lead_days_min: number | null;
-  delivery_lead_days_max: number | null;
-  stock_quantity: number;
-  stock_status: string;
-  title: string;
-  title_i18n: Json;
-  description: string | null;
-  description_i18n: Json;
-  media: ListingMedia[];
-  status: ListingStatus;
-  fitment_resolved: boolean;
-  checkout_path: CheckoutPath;
-  affiliate_deep_link: string | null;
-  is_demo: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface FitmentEdgeRow {
-  id: string;
-  part_id: string;
-  vehicle_id: string;
-  source: FitmentSource;
-  governance_level: GovernanceLevel;
-  confidence: number;
-  evidence: Json;
-  validated_by: string | null;
-  validated_at: string | null;
-  active: boolean;
-  created_at: string;
-  updated_at: string;
-}
-
-export interface ListingVehicleApplicabilityRow {
-  id: string;
-  listing_id: string;
-  vehicle_id: string;
-  aggregated_confidence: number;
-  display_tier: GovernanceLevel;
-}
-
-export interface OeCrossReferenceRow {
-  id: string;
-  oe_number: string;
-  equivalent_oe_number: string;
-  distance: number;
-  source: FitmentSource;
-  created_at: string;
-}
-
-export interface PhotoInferenceRow {
-  id: string;
-  seller_id: string | null;
-  photo_url: string;
-  photo_checksum: string | null;
-  model: string;
-  prompt_version: string;
-  raw_response: Json;
-  parsed: Json;
-  confidence: number | null;
-  matched_part_id: string | null;
-  listing_id: string | null;
-  created_at: string;
-}
-
-export interface DemoPlateRow {
-  plate: string;
-  country_code: string;
-  vehicle_id: string;
-  notes: string | null;
-  created_at: string;
-}
-
-export interface PlateLookupRow {
-  id: string;
-  plate_hash: string;
-  country_code: string;
-  vehicle_id: string | null;
-  match_confidence: number | null;
-  resolved_at: string;
-  expires_at: string;
-}
-
-// ============================================================
-// Supabase Database shape
-// ============================================================
-
-type InsertOf<T> = Omit<T, "id" | "created_at" | "updated_at"> & {
-  id?: string;
-  created_at?: string;
-  updated_at?: string;
-};
-
-type UpdateOf<T> = Partial<InsertOf<T>>;
+  | Json[]
 
 export type Database = {
-  // Marker expected by @supabase/postgrest-js >= 2.x. See GenericDatabase type.
+  // Allows to automatically instantiate createClient with right options
+  // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "12";
-  };
+    PostgrestVersion: "14.5"
+  }
+  graphql_public: {
+    Tables: {
+      [_ in never]: never
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      graphql: {
+        Args: {
+          extensions?: Json
+          operationName?: string
+          query?: string
+          variables?: Json
+        }
+        Returns: Json
+      }
+    }
+    Enums: {
+      [_ in never]: never
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
   public: {
     Tables: {
       categories: {
-        Row: CategoryRow;
-        Insert: InsertOf<CategoryRow>;
-        Update: UpdateOf<CategoryRow>;
-        Relationships: [];
-      };
-      vehicles: {
-        Row: VehicleRow;
-        Insert: InsertOf<VehicleRow>;
-        Update: UpdateOf<VehicleRow>;
-        Relationships: [];
-      };
-      parts: {
-        Row: PartRow;
-        Insert: InsertOf<PartRow>;
-        Update: UpdateOf<PartRow>;
-        Relationships: [];
-      };
-      sellers: {
-        Row: SellerRow;
-        Insert: InsertOf<SellerRow>;
-        Update: UpdateOf<SellerRow>;
-        Relationships: [];
-      };
-      listings: {
-        Row: ListingRow;
-        Insert: InsertOf<ListingRow>;
-        Update: UpdateOf<ListingRow>;
-        Relationships: [];
-      };
-      fitment_edges: {
-        Row: FitmentEdgeRow;
-        Insert: InsertOf<FitmentEdgeRow>;
-        Update: UpdateOf<FitmentEdgeRow>;
-        Relationships: [];
-      };
-      listing_vehicle_applicability: {
-        Row: ListingVehicleApplicabilityRow;
-        Insert: Omit<ListingVehicleApplicabilityRow, "id"> & { id?: string };
-        Update: Partial<ListingVehicleApplicabilityRow>;
-        Relationships: [];
-      };
-      oe_cross_references: {
-        Row: OeCrossReferenceRow;
-        Insert: Omit<OeCrossReferenceRow, "id" | "created_at"> & {
-          id?: string;
-          created_at?: string;
-        };
-        Update: Partial<OeCrossReferenceRow>;
-        Relationships: [];
-      };
-      photo_inferences: {
-        Row: PhotoInferenceRow;
-        Insert: Omit<PhotoInferenceRow, "id" | "created_at"> & {
-          id?: string;
-          created_at?: string;
-        };
-        Update: Partial<PhotoInferenceRow>;
-        Relationships: [];
-      };
+        Row: {
+          created_at: string
+          depth: number
+          id: string
+          name: string
+          name_i18n: Json
+          parent_id: string | null
+          path: string[]
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          depth?: number
+          id?: string
+          name: string
+          name_i18n?: Json
+          parent_id?: string | null
+          path?: string[]
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          depth?: number
+          id?: string
+          name?: string
+          name_i18n?: Json
+          parent_id?: string | null
+          path?: string[]
+          slug?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       demo_plates: {
-        Row: DemoPlateRow;
-        Insert: Omit<DemoPlateRow, "created_at"> & { created_at?: string };
-        Update: Partial<DemoPlateRow>;
-        Relationships: [];
-      };
+        Row: {
+          country_code: string
+          created_at: string
+          notes: string | null
+          plate: string
+          vehicle_id: string
+        }
+        Insert: {
+          country_code?: string
+          created_at?: string
+          notes?: string | null
+          plate: string
+          vehicle_id: string
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          notes?: string | null
+          plate?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "demo_plates_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      fitment_edges: {
+        Row: {
+          active: boolean
+          confidence: number
+          created_at: string
+          evidence: Json
+          governance_level: Database["public"]["Enums"]["governance_level"]
+          id: string
+          part_id: string
+          source: Database["public"]["Enums"]["fitment_source"]
+          updated_at: string
+          validated_at: string | null
+          validated_by: string | null
+          vehicle_id: string
+        }
+        Insert: {
+          active?: boolean
+          confidence: number
+          created_at?: string
+          evidence?: Json
+          governance_level: Database["public"]["Enums"]["governance_level"]
+          id?: string
+          part_id: string
+          source: Database["public"]["Enums"]["fitment_source"]
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          vehicle_id: string
+        }
+        Update: {
+          active?: boolean
+          confidence?: number
+          created_at?: string
+          evidence?: Json
+          governance_level?: Database["public"]["Enums"]["governance_level"]
+          id?: string
+          part_id?: string
+          source?: Database["public"]["Enums"]["fitment_source"]
+          updated_at?: string
+          validated_at?: string | null
+          validated_by?: string | null
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fitment_edges_part_id_fkey"
+            columns: ["part_id"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fitment_edges_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listing_vehicle_applicability: {
+        Row: {
+          aggregated_confidence: number
+          display_tier: Database["public"]["Enums"]["governance_level"]
+          id: string
+          listing_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          aggregated_confidence: number
+          display_tier: Database["public"]["Enums"]["governance_level"]
+          id?: string
+          listing_id: string
+          vehicle_id: string
+        }
+        Update: {
+          aggregated_confidence?: number
+          display_tier?: Database["public"]["Enums"]["governance_level"]
+          id?: string
+          listing_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listing_vehicle_applicability_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listing_vehicle_applicability_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      listings: {
+        Row: {
+          affiliate_deep_link: string | null
+          checkout_path: string
+          condition: Database["public"]["Enums"]["part_condition"]
+          created_at: string
+          delivery_lead_days_max: number | null
+          delivery_lead_days_min: number | null
+          description: string | null
+          description_i18n: Json
+          fitment_resolved: boolean
+          free_shipping_threshold: number | null
+          id: string
+          ingestion_source: Database["public"]["Enums"]["ingestion_source"]
+          is_demo: boolean
+          media: Json
+          part_id: string | null
+          price_amount: number
+          price_currency: string
+          provenance: Json
+          seller_id: string
+          shipping_fee: number | null
+          source_external_id: string | null
+          source_url: string | null
+          status: Database["public"]["Enums"]["listing_status"]
+          stock_quantity: number
+          stock_status: string
+          title: string
+          title_i18n: Json
+          updated_at: string
+        }
+        Insert: {
+          affiliate_deep_link?: string | null
+          checkout_path?: string
+          condition: Database["public"]["Enums"]["part_condition"]
+          created_at?: string
+          delivery_lead_days_max?: number | null
+          delivery_lead_days_min?: number | null
+          description?: string | null
+          description_i18n?: Json
+          fitment_resolved?: boolean
+          free_shipping_threshold?: number | null
+          id?: string
+          ingestion_source: Database["public"]["Enums"]["ingestion_source"]
+          is_demo?: boolean
+          media?: Json
+          part_id?: string | null
+          price_amount: number
+          price_currency?: string
+          provenance?: Json
+          seller_id: string
+          shipping_fee?: number | null
+          source_external_id?: string | null
+          source_url?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          stock_quantity?: number
+          stock_status?: string
+          title: string
+          title_i18n?: Json
+          updated_at?: string
+        }
+        Update: {
+          affiliate_deep_link?: string | null
+          checkout_path?: string
+          condition?: Database["public"]["Enums"]["part_condition"]
+          created_at?: string
+          delivery_lead_days_max?: number | null
+          delivery_lead_days_min?: number | null
+          description?: string | null
+          description_i18n?: Json
+          fitment_resolved?: boolean
+          free_shipping_threshold?: number | null
+          id?: string
+          ingestion_source?: Database["public"]["Enums"]["ingestion_source"]
+          is_demo?: boolean
+          media?: Json
+          part_id?: string | null
+          price_amount?: number
+          price_currency?: string
+          provenance?: Json
+          seller_id?: string
+          shipping_fee?: number | null
+          source_external_id?: string | null
+          source_url?: string | null
+          status?: Database["public"]["Enums"]["listing_status"]
+          stock_quantity?: number
+          stock_status?: string
+          title?: string
+          title_i18n?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "listings_part_id_fkey"
+            columns: ["part_id"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "listings_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      oe_cross_references: {
+        Row: {
+          created_at: string
+          distance: number
+          equivalent_oe_number: string
+          id: string
+          oe_number: string
+          source: Database["public"]["Enums"]["fitment_source"]
+        }
+        Insert: {
+          created_at?: string
+          distance?: number
+          equivalent_oe_number: string
+          id?: string
+          oe_number: string
+          source: Database["public"]["Enums"]["fitment_source"]
+        }
+        Update: {
+          created_at?: string
+          distance?: number
+          equivalent_oe_number?: string
+          id?: string
+          oe_number?: string
+          source?: Database["public"]["Enums"]["fitment_source"]
+        }
+        Relationships: []
+      }
+      parts: {
+        Row: {
+          category_id: string | null
+          created_at: string
+          display_name: string
+          display_name_i18n: Json
+          iam_numbers: string[]
+          id: string
+          oe_numbers: string[]
+          primary_image_url: string | null
+          slug: string
+          subcategory: string | null
+          technical_attributes: Json
+          updated_at: string
+        }
+        Insert: {
+          category_id?: string | null
+          created_at?: string
+          display_name: string
+          display_name_i18n?: Json
+          iam_numbers?: string[]
+          id?: string
+          oe_numbers?: string[]
+          primary_image_url?: string | null
+          slug: string
+          subcategory?: string | null
+          technical_attributes?: Json
+          updated_at?: string
+        }
+        Update: {
+          category_id?: string | null
+          created_at?: string
+          display_name?: string
+          display_name_i18n?: Json
+          iam_numbers?: string[]
+          id?: string
+          oe_numbers?: string[]
+          primary_image_url?: string | null
+          slug?: string
+          subcategory?: string | null
+          technical_attributes?: Json
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "parts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photo_inferences: {
+        Row: {
+          confidence: number | null
+          created_at: string
+          id: string
+          listing_id: string | null
+          matched_part_id: string | null
+          model: string
+          parsed: Json
+          photo_checksum: string | null
+          photo_url: string
+          prompt_version: string
+          raw_response: Json
+          seller_id: string | null
+        }
+        Insert: {
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          matched_part_id?: string | null
+          model: string
+          parsed: Json
+          photo_checksum?: string | null
+          photo_url: string
+          prompt_version?: string
+          raw_response: Json
+          seller_id?: string | null
+        }
+        Update: {
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          listing_id?: string | null
+          matched_part_id?: string | null
+          model?: string
+          parsed?: Json
+          photo_checksum?: string | null
+          photo_url?: string
+          prompt_version?: string
+          raw_response?: Json
+          seller_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_inferences_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_inferences_matched_part_id_fkey"
+            columns: ["matched_part_id"]
+            isOneToOne: false
+            referencedRelation: "parts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "photo_inferences_seller_id_fkey"
+            columns: ["seller_id"]
+            isOneToOne: false
+            referencedRelation: "sellers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       plate_lookups: {
-        Row: PlateLookupRow;
-        Insert: Omit<PlateLookupRow, "id" | "resolved_at" | "expires_at"> & {
-          id?: string;
-          resolved_at?: string;
-          expires_at?: string;
-        };
-        Update: Partial<PlateLookupRow>;
-        Relationships: [];
-      };
-    };
-    Views: Record<string, never>;
-    Functions: Record<string, never>;
+        Row: {
+          country_code: string
+          expires_at: string
+          id: string
+          match_confidence: number | null
+          plate_hash: string
+          resolved_at: string
+          vehicle_id: string | null
+        }
+        Insert: {
+          country_code: string
+          expires_at?: string
+          id?: string
+          match_confidence?: number | null
+          plate_hash: string
+          resolved_at?: string
+          vehicle_id?: string | null
+        }
+        Update: {
+          country_code?: string
+          expires_at?: string
+          id?: string
+          match_confidence?: number | null
+          plate_hash?: string
+          resolved_at?: string
+          vehicle_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "plate_lookups_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      sellers: {
+        Row: {
+          country_code: string
+          created_at: string
+          display_name: string
+          ebay_connected: boolean
+          ebay_connection_meta: Json | null
+          ebay_user_id: string | null
+          fitment_accuracy_rate: number | null
+          id: string
+          is_demo: boolean
+          legal_name: string | null
+          linnworks_connected: boolean
+          mor_activated_at: string | null
+          mor_eligible: boolean
+          onboarded_at: string | null
+          response_time_hours: number | null
+          return_rate: number | null
+          status: Database["public"]["Enums"]["seller_status"]
+          tier: Database["public"]["Enums"]["seller_tier"]
+          transaction_count: number
+          updated_at: string
+          user_id: string | null
+          vat_number: string | null
+        }
+        Insert: {
+          country_code: string
+          created_at?: string
+          display_name: string
+          ebay_connected?: boolean
+          ebay_connection_meta?: Json | null
+          ebay_user_id?: string | null
+          fitment_accuracy_rate?: number | null
+          id?: string
+          is_demo?: boolean
+          legal_name?: string | null
+          linnworks_connected?: boolean
+          mor_activated_at?: string | null
+          mor_eligible?: boolean
+          onboarded_at?: string | null
+          response_time_hours?: number | null
+          return_rate?: number | null
+          status?: Database["public"]["Enums"]["seller_status"]
+          tier?: Database["public"]["Enums"]["seller_tier"]
+          transaction_count?: number
+          updated_at?: string
+          user_id?: string | null
+          vat_number?: string | null
+        }
+        Update: {
+          country_code?: string
+          created_at?: string
+          display_name?: string
+          ebay_connected?: boolean
+          ebay_connection_meta?: Json | null
+          ebay_user_id?: string | null
+          fitment_accuracy_rate?: number | null
+          id?: string
+          is_demo?: boolean
+          legal_name?: string | null
+          linnworks_connected?: boolean
+          mor_activated_at?: string | null
+          mor_eligible?: boolean
+          onboarded_at?: string | null
+          response_time_hours?: number | null
+          return_rate?: number | null
+          status?: Database["public"]["Enums"]["seller_status"]
+          tier?: Database["public"]["Enums"]["seller_tier"]
+          transaction_count?: number
+          updated_at?: string
+          user_id?: string | null
+          vat_number?: string | null
+        }
+        Relationships: []
+      }
+      vehicles: {
+        Row: {
+          body_type: string | null
+          confidence: number
+          created_at: string
+          data_source: string | null
+          display_name: string | null
+          engine_cc: number | null
+          engine_code: string | null
+          engine_hp: number | null
+          engine_kw: number | null
+          fuel_type: string | null
+          id: string
+          ktype_nr: number | null
+          make: string
+          manufacturer_code: string | null
+          model: string
+          primary_markets: string[]
+          slug: string
+          updated_at: string
+          variant: string | null
+          vehicle_type: Database["public"]["Enums"]["vehicle_type"]
+          year_from: number | null
+          year_to: number | null
+        }
+        Insert: {
+          body_type?: string | null
+          confidence?: number
+          created_at?: string
+          data_source?: string | null
+          display_name?: string | null
+          engine_cc?: number | null
+          engine_code?: string | null
+          engine_hp?: number | null
+          engine_kw?: number | null
+          fuel_type?: string | null
+          id?: string
+          ktype_nr?: number | null
+          make: string
+          manufacturer_code?: string | null
+          model: string
+          primary_markets?: string[]
+          slug: string
+          updated_at?: string
+          variant?: string | null
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Update: {
+          body_type?: string | null
+          confidence?: number
+          created_at?: string
+          data_source?: string | null
+          display_name?: string | null
+          engine_cc?: number | null
+          engine_code?: string | null
+          engine_hp?: number | null
+          engine_kw?: number | null
+          fuel_type?: string | null
+          id?: string
+          ktype_nr?: number | null
+          make?: string
+          manufacturer_code?: string | null
+          model?: string
+          primary_markets?: string[]
+          slug?: string
+          updated_at?: string
+          variant?: string | null
+          vehicle_type?: Database["public"]["Enums"]["vehicle_type"]
+          year_from?: number | null
+          year_to?: number | null
+        }
+        Relationships: []
+      }
+    }
+    Views: {
+      [_ in never]: never
+    }
+    Functions: {
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
+    }
     Enums: {
-      vehicle_type: VehicleType;
-      part_condition: PartCondition;
-      fitment_source: FitmentSource;
-      governance_level: GovernanceLevel;
-      seller_tier: SellerTier;
-      seller_status: SellerStatus;
-      listing_status: ListingStatus;
-      ingestion_source: IngestionSource;
-    };
-    CompositeTypes: Record<string, never>;
-  };
-};
+      fitment_source:
+        | "tecdoc_direct"
+        | "ebay_epid"
+        | "oe_cross_reference"
+        | "ai_photo_inference"
+        | "human_validated"
+        | "seller_declared"
+        | "community_reported"
+      governance_level: "L1_auto" | "L2_ai" | "L3_human" | "L4_community"
+      ingestion_source:
+        | "ebay_connector"
+        | "linnworks"
+        | "native_import"
+        | "external_affiliate_feed"
+        | "dms_connector"
+      listing_status:
+        | "draft"
+        | "pending_review"
+        | "active"
+        | "paused"
+        | "archived"
+      part_condition:
+        | "new_oe"
+        | "new_oes"
+        | "new_iam"
+        | "reman"
+        | "rec_traced"
+        | "used_untraced"
+      seller_status: "pending" | "active" | "suspended" | "archived"
+      seller_tier: "A" | "B" | "C" | "D" | "unranked"
+      vehicle_type:
+        | "car"
+        | "light_commercial"
+        | "motorcycle"
+        | "truck"
+        | "boat"
+        | "agricultural"
+        | "other"
+    }
+    CompositeTypes: {
+      [_ in never]: never
+    }
+  }
+}
+
+type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
+
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+
+export type Tables<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+        DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
+      DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])[TableName] extends {
+      Row: infer R
+    }
+    ? R
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])
+    ? (DefaultSchema["Tables"] &
+        DefaultSchema["Views"])[DefaultSchemaTableNameOrOptions] extends {
+        Row: infer R
+      }
+      ? R
+      : never
+    : never
+
+export type TablesInsert<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Insert: infer I
+    }
+    ? I
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Insert: infer I
+      }
+      ? I
+      : never
+    : never
+
+export type TablesUpdate<
+  DefaultSchemaTableNameOrOptions extends
+    | keyof DefaultSchema["Tables"]
+    | { schema: keyof DatabaseWithoutInternals },
+  TableName extends DefaultSchemaTableNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
+    : never = never,
+> = DefaultSchemaTableNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"][TableName] extends {
+      Update: infer U
+    }
+    ? U
+    : never
+  : DefaultSchemaTableNameOrOptions extends keyof DefaultSchema["Tables"]
+    ? DefaultSchema["Tables"][DefaultSchemaTableNameOrOptions] extends {
+        Update: infer U
+      }
+      ? U
+      : never
+    : never
+
+export type Enums<
+  DefaultSchemaEnumNameOrOptions extends
+    | keyof DefaultSchema["Enums"]
+    | { schema: keyof DatabaseWithoutInternals },
+  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
+    : never = never,
+> = DefaultSchemaEnumNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"][EnumName]
+  : DefaultSchemaEnumNameOrOptions extends keyof DefaultSchema["Enums"]
+    ? DefaultSchema["Enums"][DefaultSchemaEnumNameOrOptions]
+    : never
+
+export type CompositeTypes<
+  PublicCompositeTypeNameOrOptions extends
+    | keyof DefaultSchema["CompositeTypes"]
+    | { schema: keyof DatabaseWithoutInternals },
+  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+    schema: keyof DatabaseWithoutInternals
+  }
+    ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
+    : never = never,
+> = PublicCompositeTypeNameOrOptions extends {
+  schema: keyof DatabaseWithoutInternals
+}
+  ? DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"][CompositeTypeName]
+  : PublicCompositeTypeNameOrOptions extends keyof DefaultSchema["CompositeTypes"]
+    ? DefaultSchema["CompositeTypes"][PublicCompositeTypeNameOrOptions]
+    : never
+
+export const Constants = {
+  graphql_public: {
+    Enums: {},
+  },
+  public: {
+    Enums: {
+      fitment_source: [
+        "tecdoc_direct",
+        "ebay_epid",
+        "oe_cross_reference",
+        "ai_photo_inference",
+        "human_validated",
+        "seller_declared",
+        "community_reported",
+      ],
+      governance_level: ["L1_auto", "L2_ai", "L3_human", "L4_community"],
+      ingestion_source: [
+        "ebay_connector",
+        "linnworks",
+        "native_import",
+        "external_affiliate_feed",
+        "dms_connector",
+      ],
+      listing_status: [
+        "draft",
+        "pending_review",
+        "active",
+        "paused",
+        "archived",
+      ],
+      part_condition: [
+        "new_oe",
+        "new_oes",
+        "new_iam",
+        "reman",
+        "rec_traced",
+        "used_untraced",
+      ],
+      seller_status: ["pending", "active", "suspended", "archived"],
+      seller_tier: ["A", "B", "C", "D", "unranked"],
+      vehicle_type: [
+        "car",
+        "light_commercial",
+        "motorcycle",
+        "truck",
+        "boat",
+        "agricultural",
+        "other",
+      ],
+    },
+  },
+} as const
