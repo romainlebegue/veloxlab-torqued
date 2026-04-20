@@ -34,6 +34,12 @@ env/
 playwright-report/
 test-results/
 
+# Claude Code per-machine settings
+.claude/settings.local.json
+
+# User's briefs staging area — authoritative copies live in docs/
+Brief/
+
 # Misc
 .DS_Store
 *.log
